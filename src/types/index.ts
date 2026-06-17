@@ -37,7 +37,7 @@ export interface ConnectionConfig {
 export type Store = SdkStore;
 export type AuthorizationModel = SdkAuthorizationModel;
 
-export type { TypeDefinition, TupleKey, Tuple, Userset };
+export type { Tuple, TupleKey, TypeDefinition, Userset };
 
 export interface TokenCache {
   accessToken: string;

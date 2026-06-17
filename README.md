@@ -23,7 +23,6 @@ A web-based dashboard for managing [OpenFGA](https://openfga.dev) authorization 
 
 ### Prerequisites
 
-- Node.js 20+
 - An OpenFGA server (or [run one locally](https://openfga.dev/docs/getting-started/setup-openfga))
 
 ### Development
