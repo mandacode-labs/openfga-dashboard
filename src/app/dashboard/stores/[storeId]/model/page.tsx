@@ -9,7 +9,7 @@ import {
   Upload,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export default function ModelEditorPage({
   const { storeId } = use(params);
   const { models, loading, error, refetch } = useAuthorizationModels(storeId);
   const client = useConnectionStore((s) => s.client);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedModelId, setSelectedModelId] = useState("");
   const [dsl, setDsl] = useState("");
@@ -98,20 +99,17 @@ export default function ModelEditorPage({
 
   const isModified = dsl !== originalDsl;
 
-  const handleImport = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".fga,.txt,.dsl";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        setDsl(reader.result as string);
-      };
-      reader.readAsText(file);
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setDsl(reader.result);
+      }
     };
-    input.click();
+    reader.readAsText(file);
+    e.target.value = "";
   };
 
   const handleExport = () => {
@@ -146,7 +144,7 @@ export default function ModelEditorPage({
           size="sm"
           variant="outline"
           className="h-7 text-xs"
-          onClick={handleImport}
+          onClick={() => fileInputRef.current?.click()}
         >
           <Upload className="mr-1 h-3 w-3" />
           Import
@@ -186,6 +184,14 @@ export default function ModelEditorPage({
           {saving ? "Saving..." : "Save"}
         </Button>
       </PageHeading>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".fga,.txt,.dsl"
+        onChange={handleFileImport}
+        className="hidden"
+      />
 
       {saveSuccess && (
         <Alert
