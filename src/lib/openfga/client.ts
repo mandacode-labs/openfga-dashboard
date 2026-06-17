@@ -61,6 +61,7 @@ function createClientConfig(
 ): UserClientConfigurationParams {
   const base: UserClientConfigurationParams = {
     apiUrl: config.serverUrl,
+    retryParams: { maxRetry: 0 },
   };
 
   switch (config.auth.method) {
@@ -84,6 +85,7 @@ async function createOidcClientConfig(
   const token = await getOidcToken(config.auth);
   return {
     apiUrl: config.serverUrl,
+    retryParams: { maxRetry: 0 },
     credentials: {
       method: CredentialsMethod.ApiToken,
       config: { token },
