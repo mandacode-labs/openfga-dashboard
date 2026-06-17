@@ -15,15 +15,11 @@ interface ConnectionState {
   currentStoreId: string | null;
   currentStore: Store | null;
   client: OpenFgaClient | null;
-  presets: ConnectionConfig[];
 
   setConfig: (config: ConnectionConfig) => void;
   connect: (config: ConnectionConfig) => Promise<boolean>;
   disconnect: () => void;
   setCurrentStore: (store: Store | null) => void;
-  addPreset: (config: ConnectionConfig) => void;
-  removePreset: (index: number) => void;
-  setPresets: (presets: ConnectionConfig[]) => void;
 }
 
 export const useConnectionStore = create<ConnectionState>()((set) => ({
@@ -32,7 +28,6 @@ export const useConnectionStore = create<ConnectionState>()((set) => ({
   currentStoreId: null,
   currentStore: null,
   client: null,
-  presets: [],
 
   setConfig: (config: ConnectionConfig) => {
     set({ config });
@@ -62,27 +57,5 @@ export const useConnectionStore = create<ConnectionState>()((set) => ({
       currentStore: store,
       currentStoreId: store?.id ?? null,
     });
-  },
-
-  addPreset: (config: ConnectionConfig) => {
-    set((state) => {
-      const exists = state.presets.some(
-        (p) =>
-          p.serverUrl === config.serverUrl &&
-          JSON.stringify(p.auth) === JSON.stringify(config.auth),
-      );
-      if (exists) return state;
-      return { presets: [...state.presets, config] };
-    });
-  },
-
-  removePreset: (index: number) => {
-    set((state) => ({
-      presets: state.presets.filter((_, i) => i !== index),
-    }));
-  },
-
-  setPresets: (presets: ConnectionConfig[]) => {
-    set({ presets });
   },
 }));

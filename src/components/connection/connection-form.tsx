@@ -42,9 +42,6 @@ function readJsonFile(file: File): Promise<unknown> {
 export function ConnectionForm() {
   const router = useRouter();
   const connect = useConnectionStore((s) => s.connect);
-  const presets = useConnectionStore((s) => s.presets);
-  const _addPreset = useConnectionStore((s) => s.addPreset);
-  const setPresets = useConnectionStore((s) => s.setPresets);
 
   const [serverUrl, setServerUrl] = useState("http://localhost:8080");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
@@ -59,7 +56,6 @@ export function ConnectionForm() {
   const [error, setError] = useState<string | null>(null);
 
   const importConfigRef = useRef<HTMLInputElement>(null);
-  const importPresetsRef = useRef<HTMLInputElement>(null);
 
   const buildConfig = (): ConnectionConfig => {
     switch (authMethod) {
@@ -121,7 +117,6 @@ export function ConnectionForm() {
       const config = (await readJsonFile(file)) as ConnectionConfig;
       if (!config.serverUrl) throw new Error("Missing serverUrl in config");
       loadConfig(config);
-      await handleConnect(config);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid config file");
     }
@@ -130,30 +125,6 @@ export function ConnectionForm() {
 
   const handleExportConfig = () => {
     downloadJson(buildConfig(), "openfga-connection.json");
-  };
-
-  const handleImportPresets = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const data = await readJsonFile(file);
-      if (!Array.isArray(data)) throw new Error("Expected a JSON array");
-      setPresets(data as ConnectionConfig[]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid presets file");
-    }
-    e.target.value = "";
-  };
-
-  const handleExportPresets = () => {
-    if (presets.length === 0) return;
-    downloadJson(presets, "openfga-presets.json");
-  };
-
-  const handleLoadPreset = (config: ConnectionConfig) => {
-    loadConfig(config);
   };
 
   return (
@@ -179,27 +150,6 @@ export function ConnectionForm() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {presets.length > 0 && (
-              <div className="space-y-1">
-                <Label className="text-xs">Saved Presets</Label>
-                <div className="space-y-1">
-                  {presets.map((preset, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="w-full text-left rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
-                      onClick={() => handleLoadPreset(preset)}
-                    >
-                      {preset.serverUrl}
-                      <span className="ml-2 text-muted-foreground">
-                        ({preset.auth.method})
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="space-y-1.5">
               <Label className="text-xs">Server URL</Label>
               <Input
@@ -262,28 +212,7 @@ export function ConnectionForm() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-2">
-          <label className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-            <Upload className="h-3 w-3" />
-            Import Presets
-            <input
-              ref={importPresetsRef}
-              type="file"
-              accept=".json"
-              onChange={handleImportPresets}
-              className="sr-only"
-            />
-          </label>
-          {presets.length > 0 && (
-            <button
-              type="button"
-              className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              onClick={handleExportPresets}
-            >
-              <Download className="h-3 w-3" />
-              Export Presets
-            </button>
-          )}
+        <div className="flex justify-center">
           <a
             href="https://openfga.dev"
             target="_blank"
