@@ -56,17 +56,7 @@ The dashboard connects to your OpenFGA server directly from the browser. OIDC to
 1. Select **OIDC Client Credentials** as authentication
 2. Enter your Zitadel Token URL (e.g., `https://your-domain.zitadel.cloud/oauth/v2/token`)
 3. Enter Client ID and Client Secret
-4. Set Scope to include your project ID: `openid profile urn:zitadel:iam:org:project:id:{PROJECT_ID}:aud`
-
-## Tech Stack
-
-- [Next.js](https://nextjs.org) 16 — App Router
-- [React](https://react.dev) 19
-- [Tailwind CSS](https://tailwindcss.com) v4
-- [shadcn/ui](https://ui.shadcn.com) (Base UI)
-- [OpenFGA SDK](https://www.npmjs.com/package/@openfga/sdk)
-- [Zustand](https://zustand.docs.pmnd.rs) — state management
-- [Monaco Editor](https://microsoft.github.io/monaco-editor/) — DSL editing
+4. Set Scope to include your project ID (e.g., `openid profile urn:zitadel:iam:org:project:id:{PROJECT_ID}:aud`)
 
 ## License
 
