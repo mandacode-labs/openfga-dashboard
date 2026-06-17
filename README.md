@@ -60,4 +60,6 @@ The dashboard connects to your OpenFGA server directly from the browser. OIDC to
 
 ## License
 
-Apache 2.0
+[Apache 2.0](LICENSE)
+
+OpenFGA Dashboard uses the [OpenFGA](https://openfga.dev) brand assets under the [Apache 2.0 license](https://github.com/openfga/community/blob/main/brand-assets/README.md).

@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, Moon, Shield, Sun } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,13 @@ export function Header({ children }: { children?: React.ReactNode }) {
             href="/dashboard"
             className="flex items-center gap-2 font-semibold text-sm tracking-tight"
           >
-            <Shield className="h-4 w-4" />
+            <Image
+              src="/logo.svg"
+              alt="OpenFGA"
+              className="h-4 w-4"
+              width={16}
+              height={16}
+            />
             <span>OpenFGA Dashboard</span>
           </Link>
           {config && (
