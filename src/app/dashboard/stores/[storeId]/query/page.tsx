@@ -40,7 +40,7 @@ export default function QueryPage() {
           </TabsTrigger>
           <TabsTrigger value="batch-check" className="text-xs h-7">
             <Gauge className="mr-1 h-3 w-3" />
-            Batch
+            Batch Check
           </TabsTrigger>
           <TabsTrigger value="expand" className="text-xs h-7">
             <FolderTree className="mr-1 h-3 w-3" />
@@ -56,11 +56,11 @@ export default function QueryPage() {
           </TabsTrigger>
           <TabsTrigger value="list-relations" className="text-xs h-7">
             <Network className="mr-1 h-3 w-3" />
-            Relations
+            List Relations
           </TabsTrigger>
           <TabsTrigger value="changes" className="text-xs h-7">
             <Timer className="mr-1 h-3 w-3" />
-            Changes
+            Read Changes
           </TabsTrigger>
           <TabsTrigger value="assertions" className="text-xs h-7">
             <Gavel className="mr-1 h-3 w-3" />

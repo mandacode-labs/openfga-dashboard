@@ -30,7 +30,7 @@ export function ModelViewer({ model }: ModelViewerProps) {
   return (
     <Card className="shadow-none overflow-hidden">
       <CardHeader className="pb-2 px-4 pt-3">
-        <CardTitle className="text-xs font-medium">Model Structure</CardTitle>
+        <CardTitle className="text-xs font-medium">Type Definitions</CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4 max-h-[420px] overflow-auto">
         {types.length === 0 ? (

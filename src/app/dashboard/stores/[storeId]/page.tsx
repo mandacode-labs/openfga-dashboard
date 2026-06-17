@@ -95,7 +95,7 @@ export default function StoreOverviewPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">4 queries</p>
+            <p className="text-lg font-semibold">8 queries</p>
             <Button
               variant="outline"
               size="sm"
