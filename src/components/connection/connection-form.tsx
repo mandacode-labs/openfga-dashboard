@@ -289,6 +289,7 @@ export function ConnectionForm() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Learn more about OpenFGA"
           >
             <ExternalLink className="h-3 w-3" />
             Learn more
