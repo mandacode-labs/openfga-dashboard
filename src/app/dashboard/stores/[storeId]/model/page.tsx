@@ -9,7 +9,7 @@ import {
   Upload,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,6 @@ export default function ModelEditorPage({
   const { storeId } = use(params);
   const { models, loading, error, refetch } = useAuthorizationModels(storeId);
   const client = useConnectionStore((s) => s.client);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedModelId, setSelectedModelId] = useState("");
   const [dsl, setDsl] = useState("");
@@ -140,15 +139,16 @@ export default function ModelEditorPage({
             Synced
           </Badge>
         )}
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-xs"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="mr-1 h-3 w-3" />
+        <label className="inline-flex cursor-pointer items-center gap-1 h-7 rounded-md border border-input bg-background px-2.5 text-xs hover:bg-muted hover:text-foreground">
+          <Upload className="h-3 w-3" />
           Import
-        </Button>
+          <input
+            type="file"
+            accept=".fga,.txt,.dsl"
+            onChange={handleFileImport}
+            className="sr-only"
+          />
+        </label>
         <Button
           size="sm"
           variant="outline"
@@ -184,14 +184,6 @@ export default function ModelEditorPage({
           {saving ? "Saving..." : "Save"}
         </Button>
       </PageHeading>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".fga,.txt,.dsl"
-        onChange={handleFileImport}
-        className="absolute opacity-0 w-0 h-0"
-      />
 
       {saveSuccess && (
         <Alert
