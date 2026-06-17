@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, Plus, RotateCw, Search, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Plus,
+  RotateCw,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { use, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,6 +82,17 @@ export default function TuplesPage({
     setDeleteTarget(null);
   };
 
+  const handleExport = () => {
+    const data = JSON.stringify(filteredTuples, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tuples.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filteredTuples = tuples.filter((t) => {
     const k = t.key;
     if (userFilter && !k.user.includes(userFilter)) return false;
@@ -145,6 +163,15 @@ export default function TuplesPage({
           <div className="flex items-center justify-between">
             <CardTitle className="text-xs font-medium">Tuples</CardTitle>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleExport}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                Export
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

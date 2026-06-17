@@ -1,10 +1,11 @@
 "use client";
 
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorAlert } from "@/components/ui/error-alert";
+import { Input } from "@/components/ui/input";
 import { PageHeading } from "@/components/ui/page-heading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStores } from "@/hooks/use-openfga";
@@ -31,6 +32,17 @@ export function StoreList() {
   const client = useConnectionStore((s) => s.client);
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredStores = useMemo(
+    () =>
+      search.trim()
+        ? stores.filter((s) =>
+            s.name.toLowerCase().includes(search.toLowerCase()),
+          )
+        : stores,
+    [stores, search],
+  );
 
   const handleSelect = (store: Store) => {
     setCurrentStore(store);
@@ -87,6 +99,16 @@ export function StoreList() {
         </Button>
       </PageHeading>
 
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search stores..."
+          className="h-7 pl-8 text-xs"
+        />
+      </div>
+
       {loading && !stores.length && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -97,16 +119,18 @@ export function StoreList() {
 
       <ErrorAlert error={error} />
 
-      {!loading && !error && stores.length === 0 && (
+      {!loading && !error && filteredStores.length === 0 && (
         <div className="rounded-md border border-dashed px-4 py-8 text-center">
           <p className="text-sm text-muted-foreground">
-            No stores found. Create one to get started.
+            {search.trim()
+              ? "No stores match your search."
+              : "No stores found. Create one to get started."}
           </p>
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {stores.map((store) => (
+        {filteredStores.map((store) => (
           <StoreCard
             key={store.id}
             store={store}

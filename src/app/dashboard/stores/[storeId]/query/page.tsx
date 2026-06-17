@@ -1,9 +1,20 @@
 "use client";
 
-import { Check, FolderTree, List, Network, Timer, Users } from "lucide-react";
+import {
+  Check,
+  FolderTree,
+  Gauge,
+  Gavel,
+  List,
+  Network,
+  Timer,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { PageHeading } from "@/components/ui/page-heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AssertionsPanel } from "@/features/query/assertions-panel";
+import { BatchCheckPanel } from "@/features/query/batch-check-panel";
 import { CheckPanel } from "@/features/query/check-panel";
 import { ExpandPanel } from "@/features/query/expand-panel";
 import { ListObjectsPanel } from "@/features/query/list-objects-panel";
@@ -22,10 +33,14 @@ export default function QueryPage() {
       />
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="h-8">
+        <TabsList className="h-8 flex-wrap">
           <TabsTrigger value="check" className="text-xs h-7">
             <Check className="mr-1 h-3 w-3" />
             Check
+          </TabsTrigger>
+          <TabsTrigger value="batch-check" className="text-xs h-7">
+            <Gauge className="mr-1 h-3 w-3" />
+            Batch
           </TabsTrigger>
           <TabsTrigger value="expand" className="text-xs h-7">
             <FolderTree className="mr-1 h-3 w-3" />
@@ -47,10 +62,17 @@ export default function QueryPage() {
             <Timer className="mr-1 h-3 w-3" />
             Changes
           </TabsTrigger>
+          <TabsTrigger value="assertions" className="text-xs h-7">
+            <Gavel className="mr-1 h-3 w-3" />
+            Assertions
+          </TabsTrigger>
         </TabsList>
         <div className="mt-4">
           <TabsContent value="check">
             <CheckPanel />
+          </TabsContent>
+          <TabsContent value="batch-check">
+            <BatchCheckPanel />
           </TabsContent>
           <TabsContent value="expand">
             <ExpandPanel />
@@ -66,6 +88,9 @@ export default function QueryPage() {
           </TabsContent>
           <TabsContent value="changes">
             <ReadChangesPanel />
+          </TabsContent>
+          <TabsContent value="assertions">
+            <AssertionsPanel />
           </TabsContent>
         </div>
       </Tabs>

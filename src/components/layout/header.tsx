@@ -1,15 +1,17 @@
 "use client";
 
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Moon, Shield, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/use-theme";
 import { useConnectionStore } from "@/lib/store/connection-store";
 
 export function Header({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
   const config = useConnectionStore((s) => s.config);
   const disconnect = useConnectionStore((s) => s.disconnect);
+  const { toggle: toggleTheme, resolved: theme } = useTheme();
 
   const handleDisconnect = () => {
     disconnect();
@@ -34,7 +36,19 @@ export function Header({ children }: { children?: React.ReactNode }) {
             </span>
           )}
         </div>
-        <div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={toggleTheme}
+            title="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
           <Button
             variant="ghost"
             size="sm"

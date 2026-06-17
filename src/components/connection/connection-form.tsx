@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Shield } from "lucide-react";
+import { ExternalLink, Shield, Star, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,9 @@ import { AuthConfigForm } from "./auth-config";
 export function ConnectionForm() {
   const router = useRouter();
   const connect = useConnectionStore((s) => s.connect);
+  const presets = useConnectionStore((s) => s.presets);
+  const addPreset = useConnectionStore((s) => s.addPreset);
+  const removePreset = useConnectionStore((s) => s.removePreset);
 
   const [serverUrl, setServerUrl] = useState("http://localhost:8080");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
@@ -49,6 +52,20 @@ export function ConnectionForm() {
     }
   };
 
+  const loadPreset = (config: ConnectionConfig) => {
+    setServerUrl(config.serverUrl);
+    setAuthMethod(config.auth.method);
+    if (config.auth.method === "api-key") {
+      setApiKey(config.auth.apiKey);
+    } else if (config.auth.method === "oidc") {
+      setClientId(config.auth.clientId);
+      setClientSecret(config.auth.clientSecret);
+      setTokenUrl(config.auth.tokenUrl);
+      setAudience(config.auth.audience || "");
+      setScope(config.auth.scope || "");
+    }
+  };
+
   const handleConnect = async () => {
     setError(null);
     setConnecting(true);
@@ -64,6 +81,10 @@ export function ConnectionForm() {
     } finally {
       setConnecting(false);
     }
+  };
+
+  const handleSavePreset = () => {
+    addPreset(buildConfig());
   };
 
   return (
@@ -89,6 +110,37 @@ export function ConnectionForm() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {presets.length > 0 && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">Saved Connections</Label>
+                <div className="space-y-1">
+                  {presets.map((preset, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1 rounded-md border px-2 py-1"
+                    >
+                      <button
+                        type="button"
+                        className="flex-1 text-left text-xs truncate hover:text-foreground text-muted-foreground"
+                        onClick={() => loadPreset(preset)}
+                      >
+                        <Star className="inline h-3 w-3 mr-1 text-warning" />
+                        {preset.serverUrl}
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => removePreset(i)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label className="text-xs">Server URL</Label>
               <Input
@@ -118,14 +170,26 @@ export function ConnectionForm() {
 
             <ErrorAlert error={error} />
 
-            <Button
-              size="sm"
-              className="w-full h-7 text-xs"
-              onClick={handleConnect}
-              disabled={!serverUrl || connecting}
-            >
-              {connecting ? "Connecting..." : "Connect"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1 h-7 text-xs"
+                onClick={handleConnect}
+                disabled={!serverUrl || connecting}
+              >
+                {connecting ? "Connecting..." : "Connect"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleSavePreset}
+                disabled={!serverUrl}
+              >
+                <Star className="mr-1 h-3 w-3" />
+                Save
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

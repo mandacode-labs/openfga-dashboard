@@ -1,7 +1,13 @@
 "use client";
 
 import { transformer } from "@openfga/syntax-transformer";
-import { AlertTriangle, CheckCircle2, Save } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+  Save,
+  Upload,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import { use, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -92,6 +98,32 @@ export default function ModelEditorPage({
 
   const isModified = dsl !== originalDsl;
 
+  const handleImport = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".fga,.txt,.dsl";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        setDsl(reader.result as string);
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const handleExport = () => {
+    const blob = new Blob([dsl], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "model.fga";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-4">
       <PageHeading
@@ -110,6 +142,24 @@ export default function ModelEditorPage({
             Synced
           </Badge>
         )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs"
+          onClick={handleImport}
+        >
+          <Upload className="mr-1 h-3 w-3" />
+          Import
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs"
+          onClick={handleExport}
+        >
+          <Download className="mr-1 h-3 w-3" />
+          Export
+        </Button>
         <Select
           value={selectedModelId}
           onValueChange={(v) => setSelectedModelId(v ?? "")}
