@@ -190,7 +190,7 @@ export default function ModelEditorPage({
         type="file"
         accept=".fga,.txt,.dsl"
         onChange={handleFileImport}
-        className="hidden"
+        className="absolute opacity-0 w-0 h-0"
       />
 
       {saveSuccess && (
