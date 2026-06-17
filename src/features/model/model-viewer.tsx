@@ -2,7 +2,8 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { AuthorizationModel, Userset } from "@/types";
+import { getRelationDescription } from "@/lib/utils/model-helpers";
+import type { AuthorizationModel } from "@/types";
 
 interface ModelViewerProps {
   model: AuthorizationModel;
@@ -10,22 +11,6 @@ interface ModelViewerProps {
 
 export function ModelViewer({ model }: ModelViewerProps) {
   const types = model.type_definitions || [];
-
-  const getRelationDescription = (
-    relations: Record<string, Userset>,
-    name: string,
-  ): string => {
-    const def = relations[name];
-    if (!def) return "";
-
-    if (def.union) return "union";
-    if (def.intersection) return "intersection";
-    if (def.difference) return "difference";
-    if (def.tupleToUserset) return "from";
-    if (def.computedUserset) return "computed";
-    if ("this" in def) return "direct";
-    return "";
-  };
 
   return (
     <Card className="shadow-none overflow-hidden">

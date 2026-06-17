@@ -9,6 +9,18 @@
     "ignoreUnknown": true,
     "includes": ["**", "!node_modules", "!.next", "!dist", "!build"]
   },
+  "overrides": [
+    {
+      "includes": ["**/*.test.*", "**/__tests__/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
   "css": {
     "parser": {
       "cssModules": false,
