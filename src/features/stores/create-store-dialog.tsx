@@ -25,21 +25,31 @@ export function CreateStoreDialog({
 }: CreateStoreDialogProps) {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (!name.trim()) return;
     setLoading(true);
+    setError(null);
     try {
       await onSubmit(name.trim());
       setName("");
       onOpenChange(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create store");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setError(null);
+        onOpenChange(v);
+      }}
+    >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Create Store</DialogTitle>
@@ -57,6 +67,7 @@ export function CreateStoreDialog({
               }}
             />
           </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
         <DialogFooter>
           <Button
