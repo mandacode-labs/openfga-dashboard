@@ -2,21 +2,20 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { AuthorizationModel } from "@/types";
+import type { AuthorizationModel, Userset } from "@/types";
 
 interface ModelViewerProps {
   model: AuthorizationModel;
-  dsl: string;
 }
 
 export function ModelViewer({ model }: ModelViewerProps) {
   const types = model.type_definitions || [];
 
   const getRelationDescription = (
-    relations: Record<string, unknown>,
+    relations: Record<string, Userset>,
     name: string,
   ): string => {
-    const def = relations[name] as Record<string, unknown> | undefined;
+    const def = relations[name];
     if (!def) return "";
 
     if (def.union) return "union";
@@ -24,7 +23,7 @@ export function ModelViewer({ model }: ModelViewerProps) {
     if (def.difference) return "difference";
     if (def.tupleToUserset) return "from";
     if (def.computedUserset) return "computed";
-    if (def.this !== undefined) return "direct";
+    if ("this" in def) return "direct";
     return "";
   };
 

@@ -1,32 +1,25 @@
 "use client";
 
-import { Check, FolderTree, List, Users } from "lucide-react";
-import { use, useState } from "react";
+import { Check, FolderTree, List, Network, Timer, Users } from "lucide-react";
+import { useState } from "react";
+import { PageHeading } from "@/components/ui/page-heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckPanel } from "@/features/query/check-panel";
 import { ExpandPanel } from "@/features/query/expand-panel";
 import { ListObjectsPanel } from "@/features/query/list-objects-panel";
+import { ListRelationsPanel } from "@/features/query/list-relations-panel";
 import { ListUsersPanel } from "@/features/query/list-users-panel";
+import { ReadChangesPanel } from "@/features/query/read-changes-panel";
 
-export default function QueryPage({
-  params,
-}: {
-  params: Promise<{ storeId: string }>;
-}) {
-  const { storeId } = use(params);
-
+export default function QueryPage() {
   const [tab, setTab] = useState("check");
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold tracking-tight">
-          Query Operations
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Run authorization queries against your store
-        </p>
-      </div>
+      <PageHeading
+        title="Query Operations"
+        description="Run authorization queries against your store"
+      />
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-8">
@@ -46,19 +39,33 @@ export default function QueryPage({
             <Users className="mr-1 h-3 w-3" />
             List Users
           </TabsTrigger>
+          <TabsTrigger value="list-relations" className="text-xs h-7">
+            <Network className="mr-1 h-3 w-3" />
+            Relations
+          </TabsTrigger>
+          <TabsTrigger value="changes" className="text-xs h-7">
+            <Timer className="mr-1 h-3 w-3" />
+            Changes
+          </TabsTrigger>
         </TabsList>
         <div className="mt-4">
           <TabsContent value="check">
-            <CheckPanel storeId={storeId} />
+            <CheckPanel />
           </TabsContent>
           <TabsContent value="expand">
-            <ExpandPanel storeId={storeId} />
+            <ExpandPanel />
           </TabsContent>
           <TabsContent value="list-objects">
-            <ListObjectsPanel storeId={storeId} />
+            <ListObjectsPanel />
           </TabsContent>
           <TabsContent value="list-users">
-            <ListUsersPanel storeId={storeId} />
+            <ListUsersPanel />
+          </TabsContent>
+          <TabsContent value="list-relations">
+            <ListRelationsPanel />
+          </TabsContent>
+          <TabsContent value="changes">
+            <ReadChangesPanel />
           </TabsContent>
         </div>
       </Tabs>

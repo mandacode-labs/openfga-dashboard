@@ -1,17 +1,19 @@
 "use client";
 
+import type {
+  Computed as FgaComputed,
+  Leaf as FgaLeaf,
+  Node as FgaNode,
+  UsersetTree,
+} from "@openfga/sdk";
 import { FolderTree } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConnectionStore } from "@/lib/store/connection-store";
-
-interface ExpandPanelProps {
-  storeId: string | null;
-}
 
 interface TreeNode {
   label: string;
@@ -19,28 +21,32 @@ interface TreeNode {
   isLeaf?: boolean;
 }
 
-function buildTree(root: Record<string, unknown> | undefined): TreeNode | null {
+function buildTree(root: FgaNode | undefined): TreeNode | null {
   if (!root) return null;
 
-  const name = (root.name as string) || "root";
+  const name = root.name || "root";
 
   if (root.leaf) {
-    const leaf = root.leaf as Record<string, unknown>;
-    if (leaf.users) {
-      const users = (leaf.users as Record<string, unknown>).users as string[];
+    const leaf = root.leaf;
+    if ((leaf as FgaLeaf).users) {
+      const users = (leaf as FgaLeaf).users?.users || [];
       return {
         label: name,
-        children: users.map((u) => ({ label: u, children: [], isLeaf: true })),
+        children: users.map((u) => ({
+          label: u,
+          children: [],
+          isLeaf: true,
+        })),
         isLeaf: false,
       };
     }
-    if (leaf.computed) {
-      const computed = leaf.computed as Record<string, unknown>;
+    if ((leaf as FgaLeaf).computed) {
+      const computed = leaf.computed as FgaComputed;
       return {
         label: name,
         children: [
           {
-            label: `computed → ${computed.userset}`,
+            label: `computed \u2192 ${computed.userset}`,
             children: [],
             isLeaf: true,
           },
@@ -52,37 +58,24 @@ function buildTree(root: Record<string, unknown> | undefined): TreeNode | null {
 
   const children: TreeNode[] = [];
   if (root.union) {
-    const nodes =
-      ((root.union as Record<string, unknown>).nodes as Record<
-        string,
-        unknown
-      >[]) || [];
+    const nodes = root.union.nodes || [];
     for (const node of nodes) {
       const child = buildTree(node);
       if (child) children.push(child);
     }
   }
   if (root.intersection) {
-    const nodes =
-      ((root.intersection as Record<string, unknown>).nodes as Record<
-        string,
-        unknown
-      >[]) || [];
+    const nodes = root.intersection.nodes || [];
     for (const node of nodes) {
       const child = buildTree(node);
       if (child) children.push(child);
     }
   }
   if (root.difference) {
-    const nodes =
-      ((root.difference as Record<string, unknown>).nodes as Record<
-        string,
-        unknown
-      >[]) || [];
-    for (const node of nodes) {
-      const child = buildTree(node);
-      if (child) children.push(child);
-    }
+    const base = buildTree(root.difference.base);
+    if (base) children.push(base);
+    const sub = buildTree(root.difference.subtract);
+    if (sub) children.push(sub);
   }
 
   return { label: name, children, isLeaf: children.length === 0 };
@@ -102,14 +95,19 @@ function TreeNodeView({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
         {node.label}
       </div>
       {node.children.map((child, i) => (
-        <TreeNodeView key={i} node={child} depth={depth + 1} />
+        <TreeNodeView
+          key={`${child.label}-${i}`}
+          node={child}
+          depth={depth + 1}
+        />
       ))}
     </div>
   );
 }
 
-export function ExpandPanel({ storeId }: ExpandPanelProps) {
+export function ExpandPanel() {
   const client = useConnectionStore((s) => s.client);
+  const storeId = useConnectionStore((s) => s.currentStoreId);
 
   const [relation, setRelation] = useState("");
   const [object, setObject] = useState("");
@@ -124,9 +122,7 @@ export function ExpandPanel({ storeId }: ExpandPanelProps) {
     setTree(null);
     try {
       const res = await client.expand({ relation, object }, { storeId });
-      const rootNode = buildTree(
-        (res.tree as { root?: Record<string, unknown> })?.root,
-      );
+      const rootNode = buildTree((res.tree as UsersetTree)?.root);
       setTree(rootNode);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Expand failed");
@@ -168,17 +164,13 @@ export function ExpandPanel({ storeId }: ExpandPanelProps) {
           size="sm"
           className="h-7 text-xs"
           onClick={handleExpand}
-          disabled={!client || !storeId || !relation || !object || loading}
+          disabled={!client || !relation || !object || loading}
         >
           <FolderTree className="mr-1 h-3 w-3" />
           {loading ? "Expanding..." : "Expand"}
         </Button>
 
-        {error && (
-          <Alert variant="destructive" size="compact">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <ErrorAlert error={error} />
 
         {tree && (
           <div className="rounded-md border p-3 max-h-64 overflow-auto">

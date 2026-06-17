@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeading } from "@/components/ui/page-heading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthorizationModels, useStores } from "@/hooks/use-openfga";
 import { useConnectionStore } from "@/lib/store/connection-store";
@@ -37,10 +38,7 @@ export default function StoreOverviewPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-base font-semibold tracking-tight">{store.name}</h2>
-        <p className="text-xs text-muted-foreground font-mono">{store.id}</p>
-      </div>
+      <PageHeading title={store.name} description={store.id} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="shadow-none">

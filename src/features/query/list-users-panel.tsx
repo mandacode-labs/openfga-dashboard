@@ -2,20 +2,17 @@
 
 import { Users } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConnectionStore } from "@/lib/store/connection-store";
 
-interface ListUsersPanelProps {
-  storeId: string | null;
-}
-
-export function ListUsersPanel({ storeId }: ListUsersPanelProps) {
+export function ListUsersPanel() {
   const client = useConnectionStore((s) => s.client);
+  const storeId = useConnectionStore((s) => s.currentStoreId);
 
   const [objectType, setObjectType] = useState("");
   const [objectId, setObjectId] = useState("");
@@ -107,7 +104,6 @@ export function ListUsersPanel({ storeId }: ListUsersPanelProps) {
           onClick={handleList}
           disabled={
             !client ||
-            !storeId ||
             !objectType ||
             !objectId ||
             !relation ||
@@ -119,11 +115,7 @@ export function ListUsersPanel({ storeId }: ListUsersPanelProps) {
           {loading ? "Listing..." : "List Users"}
         </Button>
 
-        {error && (
-          <Alert variant="destructive" size="compact">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <ErrorAlert error={error} />
 
         {users.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

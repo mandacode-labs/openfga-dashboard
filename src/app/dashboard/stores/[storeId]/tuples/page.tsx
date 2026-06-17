@@ -2,7 +2,6 @@
 
 import { ChevronDown, Plus, RotateCw, Search, Trash2 } from "lucide-react";
 import { use, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeading } from "@/components/ui/page-heading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTuples } from "@/hooks/use-openfga";
 import type { TupleKey } from "@/types";
@@ -84,20 +85,12 @@ export default function TuplesPage({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold tracking-tight">
-          Relationship Tuples
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Manage relationship tuples in the store
-        </p>
-      </div>
+      <PageHeading
+        title="Relationship Tuples"
+        description="Manage relationship tuples in the store"
+      />
 
-      {error && (
-        <Alert variant="destructive" size="compact">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+      <ErrorAlert error={error} />
 
       <Card className="shadow-none">
         <CardHeader className="pb-2 px-4 pt-3">

@@ -4,6 +4,8 @@ import { Plus, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ErrorAlert } from "@/components/ui/error-alert";
+import { PageHeading } from "@/components/ui/page-heading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStores } from "@/hooks/use-openfga";
 import { useConnectionStore } from "@/lib/store/connection-store";
@@ -62,33 +64,28 @@ export function StoreList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">Stores</h2>
-          <p className="text-xs text-muted-foreground">
-            {stores.length} store{stores.length !== 1 ? "s" : ""} found
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            onClick={refetch}
-          >
-            <RefreshCw className="mr-1 h-3 w-3" />
-            Refresh
-          </Button>
-          <Button
-            size="sm"
-            className="h-7 text-xs"
-            onClick={() => setCreateOpen(true)}
-          >
-            <Plus className="mr-1 h-3 w-3" />
-            New Store
-          </Button>
-        </div>
-      </div>
+      <PageHeading
+        title="Stores"
+        description={`${stores.length} store${stores.length !== 1 ? "s" : ""} found`}
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-xs"
+          onClick={refetch}
+        >
+          <RefreshCw className="mr-1 h-3 w-3" />
+          Refresh
+        </Button>
+        <Button
+          size="sm"
+          className="h-7 text-xs"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus className="mr-1 h-3 w-3" />
+          New Store
+        </Button>
+      </PageHeading>
 
       {loading && !stores.length && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -98,11 +95,7 @@ export function StoreList() {
         </div>
       )}
 
-      {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive">
-          {error}
-        </div>
-      )}
+      <ErrorAlert error={error} />
 
       {!loading && !error && stores.length === 0 && (
         <div className="rounded-md border border-dashed px-4 py-8 text-center">

@@ -2,19 +2,16 @@
 
 import { Search, ShieldCheck, ShieldX } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConnectionStore } from "@/lib/store/connection-store";
 
-interface CheckPanelProps {
-  storeId: string | null;
-}
-
-export function CheckPanel({ storeId }: CheckPanelProps) {
+export function CheckPanel() {
   const client = useConnectionStore((s) => s.client);
+  const storeId = useConnectionStore((s) => s.currentStoreId);
 
   const [user, setUser] = useState("");
   const [relation, setRelation] = useState("");
@@ -80,19 +77,13 @@ export function CheckPanel({ storeId }: CheckPanelProps) {
           size="sm"
           className="h-7 text-xs"
           onClick={handleCheck}
-          disabled={
-            !client || !storeId || !user || !relation || !object || loading
-          }
+          disabled={!client || !user || !relation || !object || loading}
         >
           <Search className="mr-1 h-3 w-3" />
           {loading ? "Checking..." : "Check"}
         </Button>
 
-        {error && (
-          <Alert variant="destructive" size="compact">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <ErrorAlert error={error} />
 
         {result !== null && (
           <div

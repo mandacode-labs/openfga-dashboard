@@ -2,20 +2,17 @@
 
 import { List } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConnectionStore } from "@/lib/store/connection-store";
 
-interface ListObjectsPanelProps {
-  storeId: string | null;
-}
-
-export function ListObjectsPanel({ storeId }: ListObjectsPanelProps) {
+export function ListObjectsPanel() {
   const client = useConnectionStore((s) => s.client);
+  const storeId = useConnectionStore((s) => s.currentStoreId);
 
   const [user, setUser] = useState("");
   const [relation, setRelation] = useState("");
@@ -31,11 +28,7 @@ export function ListObjectsPanel({ storeId }: ListObjectsPanelProps) {
     setObjects([]);
     try {
       const res = await client.listObjects(
-        {
-          user,
-          relation,
-          type,
-        },
+        { user, relation, type },
         { storeId },
       );
       setObjects(res.objects || []);
@@ -88,19 +81,13 @@ export function ListObjectsPanel({ storeId }: ListObjectsPanelProps) {
           size="sm"
           className="h-7 text-xs"
           onClick={handleList}
-          disabled={
-            !client || !storeId || !user || !relation || !type || loading
-          }
+          disabled={!client || !user || !relation || !type || loading}
         >
           <List className="mr-1 h-3 w-3" />
           {loading ? "Listing..." : "List Objects"}
         </Button>
 
-        {error && (
-          <Alert variant="destructive" size="compact">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <ErrorAlert error={error} />
 
         {objects.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

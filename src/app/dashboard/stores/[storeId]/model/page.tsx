@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
+import { PageHeading } from "@/components/ui/page-heading";
 import {
   Select,
   SelectContent,
@@ -92,55 +94,48 @@ export default function ModelEditorPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-semibold tracking-tight">
-            Authorization Model
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Edit the authorization model using the OpenFGA DSL
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {isModified && (
-            <Badge variant="warning" className="text-xs font-normal">
-              <AlertTriangle className="mr-1 h-3 w-3" />
-              Modified
-            </Badge>
-          )}
-          {!isModified && selectedModel && (
-            <Badge variant="secondary" className="text-xs font-normal">
-              <CheckCircle2 className="mr-1 h-3 w-3" />
-              Synced
-            </Badge>
-          )}
-          <Select
-            value={selectedModelId}
-            onValueChange={(v) => setSelectedModelId(v ?? "")}
-            disabled={models.length === 0}
-          >
-            <SelectTrigger className="h-7 w-[180px] text-xs">
-              <SelectValue placeholder="Select version" />
-            </SelectTrigger>
-            <SelectContent>
-              {models.map((model) => (
-                <SelectItem key={model.id} value={model.id} className="text-xs">
-                  v{model.schema_version} — {model.id.slice(0, 8)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            size="sm"
-            className="h-7 text-xs"
-            onClick={handleSave}
-            disabled={!isModified || saving}
-          >
-            <Save className="mr-1 h-3 w-3" />
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </div>
+      <PageHeading
+        title="Authorization Model"
+        description="Edit the authorization model using the OpenFGA DSL"
+      >
+        {isModified && (
+          <Badge variant="warning" className="text-xs font-normal">
+            <AlertTriangle className="mr-1 h-3 w-3" />
+            Modified
+          </Badge>
+        )}
+        {!isModified && selectedModel && (
+          <Badge variant="secondary" className="text-xs font-normal">
+            <CheckCircle2 className="mr-1 h-3 w-3" />
+            Synced
+          </Badge>
+        )}
+        <Select
+          value={selectedModelId}
+          onValueChange={(v) => setSelectedModelId(v ?? "")}
+          disabled={models.length === 0}
+        >
+          <SelectTrigger className="h-7 w-[180px] text-xs">
+            <SelectValue placeholder="Select version" />
+          </SelectTrigger>
+          <SelectContent>
+            {models.map((model) => (
+              <SelectItem key={model.id} value={model.id} className="text-xs">
+                v{model.schema_version} — {model.id.slice(0, 8)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          size="sm"
+          className="h-7 text-xs"
+          onClick={handleSave}
+          disabled={!isModified || saving}
+        >
+          <Save className="mr-1 h-3 w-3" />
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      </PageHeading>
 
       {saveSuccess && (
         <Alert
@@ -151,17 +146,9 @@ export default function ModelEditorPage({
         </Alert>
       )}
 
-      {saveError && (
-        <Alert variant="destructive" size="compact">
-          <AlertDescription>{saveError}</AlertDescription>
-        </Alert>
-      )}
+      <ErrorAlert error={saveError} />
 
-      {error && (
-        <Alert variant="destructive" size="compact">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+      <ErrorAlert error={error} />
 
       {loading && (
         <div className="space-y-3">
@@ -202,7 +189,7 @@ export default function ModelEditorPage({
             </CardContent>
           </Card>
 
-          <ModelViewer model={selectedModel} dsl={dsl} />
+          <ModelViewer model={selectedModel} />
         </div>
       )}
     </div>

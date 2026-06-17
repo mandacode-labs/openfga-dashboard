@@ -3,18 +3,18 @@
 import { ExternalLink, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useConnection } from "@/hooks/use-connection";
+import { useConnectionStore } from "@/lib/store/connection-store";
 import type { AuthMethod, ConnectionConfig } from "@/types";
 import { AuthConfigForm } from "./auth-config";
 
 export function ConnectionForm() {
   const router = useRouter();
-  const { connect } = useConnection();
+  const connect = useConnectionStore((s) => s.connect);
 
   const [serverUrl, setServerUrl] = useState("http://localhost:8080");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
@@ -116,11 +116,7 @@ export function ConnectionForm() {
               onScopeChange={setScope}
             />
 
-            {error && (
-              <Alert variant="destructive" size="compact">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            <ErrorAlert error={error} />
 
             <Button
               size="sm"

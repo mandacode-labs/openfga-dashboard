@@ -4,6 +4,7 @@ import type {
   Tuple,
   TupleKey,
   TypeDefinition,
+  Userset,
 } from "@openfga/sdk";
 
 export type AuthMethod = "none" | "api-key" | "oidc";
@@ -36,7 +37,7 @@ export interface ConnectionConfig {
 export type Store = SdkStore;
 export type AuthorizationModel = SdkAuthorizationModel;
 
-export type { TypeDefinition, TupleKey, Tuple };
+export type { TypeDefinition, TupleKey, Tuple, Userset };
 
 export interface TokenCache {
   accessToken: string;
