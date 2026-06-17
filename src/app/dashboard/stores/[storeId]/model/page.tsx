@@ -204,23 +204,28 @@ export default function ModelEditorPage({
         </div>
       )}
 
-      {!loading && !selectedModel && !error && (
+      {!loading && !selectedModel && !dsl && !error && (
         <div className="rounded-md border border-dashed px-4 py-16 text-center">
           <p className="text-sm text-muted-foreground">
-            No authorization model found. Create a model in your OpenFGA server.
+            No authorization model found. Import a .fga file or create one in
+            your OpenFGA server.
           </p>
         </div>
       )}
 
-      {selectedModel && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {(selectedModel || dsl) && (
+        <div
+          className={
+            selectedModel ? "grid grid-cols-1 lg:grid-cols-2 gap-4" : ""
+          }
+        >
           <Card className="shadow-none overflow-hidden">
             <CardHeader className="pb-2 px-4 pt-3">
               <CardTitle className="text-xs font-medium">DSL Editor</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <MonacoEditor
-                height="420px"
+                height={selectedModel ? "420px" : "520px"}
                 language="plaintext"
                 theme="vs"
                 value={dsl}
@@ -237,7 +242,7 @@ export default function ModelEditorPage({
             </CardContent>
           </Card>
 
-          <ModelViewer model={selectedModel} />
+          {selectedModel && <ModelViewer model={selectedModel} />}
         </div>
       )}
     </div>

@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img [ref=e6]
+      - heading "OpenFGA Dashboard" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Connect to your OpenFGA server to manage authorization models, tuples, and queries.
+    - generic [ref=e10]:
+      - generic [ref=e12]: Connect to Server
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: Server URL
+          - textbox "http://localhost:8080" [ref=e16]
+        - generic [ref=e18]:
+          - generic [ref=e19]: Authentication
+          - combobox [ref=e20]:
+            - generic [ref=e21]: none
+            - img: ▼
+          - textbox [ref=e22]: none
+        - generic [ref=e23]:
+          - button "Connect" [ref=e24]
+          - button "Save" [ref=e25]:
+            - img
+            - text: Save
+    - link "Learn more about OpenFGA" [ref=e27] [cursor=pointer]:
+      - /url: https://openfga.dev
+      - img [ref=e28]
+      - text: Learn more about OpenFGA
+  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
+    - img [ref=e38]

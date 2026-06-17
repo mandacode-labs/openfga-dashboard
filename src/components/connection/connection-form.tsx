@@ -1,8 +1,8 @@
 "use client";
 
-import { ExternalLink, Shield, Star, Trash2 } from "lucide-react";
+import { Download, ExternalLink, Shield, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
@@ -12,12 +12,39 @@ import { useConnectionStore } from "@/lib/store/connection-store";
 import type { AuthMethod, ConnectionConfig } from "@/types";
 import { AuthConfigForm } from "./auth-config";
 
+function downloadJson(data: unknown, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function readJsonFile(file: File): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        resolve(JSON.parse(reader.result as string));
+      } catch {
+        reject(new Error("Invalid JSON file"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsText(file);
+  });
+}
+
 export function ConnectionForm() {
   const router = useRouter();
   const connect = useConnectionStore((s) => s.connect);
   const presets = useConnectionStore((s) => s.presets);
-  const addPreset = useConnectionStore((s) => s.addPreset);
-  const removePreset = useConnectionStore((s) => s.removePreset);
+  const _addPreset = useConnectionStore((s) => s.addPreset);
+  const setPresets = useConnectionStore((s) => s.setPresets);
 
   const [serverUrl, setServerUrl] = useState("http://localhost:8080");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
@@ -30,6 +57,9 @@ export function ConnectionForm() {
 
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const importConfigRef = useRef<HTMLInputElement>(null);
+  const importPresetsRef = useRef<HTMLInputElement>(null);
 
   const buildConfig = (): ConnectionConfig => {
     switch (authMethod) {
@@ -52,7 +82,7 @@ export function ConnectionForm() {
     }
   };
 
-  const loadPreset = (config: ConnectionConfig) => {
+  const loadConfig = (config: ConnectionConfig) => {
     setServerUrl(config.serverUrl);
     setAuthMethod(config.auth.method);
     if (config.auth.method === "api-key") {
@@ -66,11 +96,12 @@ export function ConnectionForm() {
     }
   };
 
-  const handleConnect = async () => {
+  const handleConnect = async (config?: ConnectionConfig) => {
+    const cfg = config || buildConfig();
     setError(null);
     setConnecting(true);
     try {
-      const ok = await connect(buildConfig());
+      const ok = await connect(cfg);
       if (ok) {
         router.push("/dashboard");
       } else {
@@ -83,8 +114,46 @@ export function ConnectionForm() {
     }
   };
 
-  const handleSavePreset = () => {
-    addPreset(buildConfig());
+  const handleImportConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const config = (await readJsonFile(file)) as ConnectionConfig;
+      if (!config.serverUrl) throw new Error("Missing serverUrl in config");
+      loadConfig(config);
+      await handleConnect(config);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid config file");
+    }
+    e.target.value = "";
+  };
+
+  const handleExportConfig = () => {
+    downloadJson(buildConfig(), "openfga-connection.json");
+  };
+
+  const handleImportPresets = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await readJsonFile(file);
+      if (!Array.isArray(data)) throw new Error("Expected a JSON array");
+      setPresets(data as ConnectionConfig[]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid presets file");
+    }
+    e.target.value = "";
+  };
+
+  const handleExportPresets = () => {
+    if (presets.length === 0) return;
+    downloadJson(presets, "openfga-presets.json");
+  };
+
+  const handleLoadPreset = (config: ConnectionConfig) => {
+    loadConfig(config);
   };
 
   return (
@@ -111,31 +180,21 @@ export function ConnectionForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             {presets.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-xs">Saved Connections</Label>
+              <div className="space-y-1">
+                <Label className="text-xs">Saved Presets</Label>
                 <div className="space-y-1">
                   {presets.map((preset, i) => (
-                    <div
+                    <button
                       key={i}
-                      className="flex items-center gap-1 rounded-md border px-2 py-1"
+                      type="button"
+                      className="w-full text-left rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted transition-colors"
+                      onClick={() => handleLoadPreset(preset)}
                     >
-                      <button
-                        type="button"
-                        className="flex-1 text-left text-xs truncate hover:text-foreground text-muted-foreground"
-                        onClick={() => loadPreset(preset)}
-                      >
-                        <Star className="inline h-3 w-3 mr-1 text-warning" />
-                        {preset.serverUrl}
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="shrink-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => removePreset(i)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                      {preset.serverUrl}
+                      <span className="ml-2 text-muted-foreground">
+                        ({preset.auth.method})
+                      </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -170,30 +229,61 @@ export function ConnectionForm() {
 
             <ErrorAlert error={error} />
 
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                className="flex-1 h-7 text-xs"
-                onClick={handleConnect}
-                disabled={!serverUrl || connecting}
+            <Button
+              size="sm"
+              className="w-full h-7 text-xs"
+              onClick={() => handleConnect()}
+              disabled={!serverUrl || connecting}
+            >
+              {connecting ? "Connecting..." : "Connect"}
+            </Button>
+
+            <div className="flex gap-1.5">
+              <label className="inline-flex flex-1 cursor-pointer items-center justify-center gap-1 h-7 rounded-md border px-2.5 text-2xs hover:bg-muted transition-colors">
+                <Upload className="h-3 w-3" />
+                Import Config
+                <input
+                  ref={importConfigRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportConfig}
+                  className="sr-only"
+                />
+              </label>
+              <button
+                type="button"
+                className="flex flex-1 cursor-pointer items-center justify-center gap-1 h-7 rounded-md border px-2.5 text-2xs hover:bg-muted transition-colors"
+                onClick={handleExportConfig}
               >
-                {connecting ? "Connecting..." : "Connect"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={handleSavePreset}
-                disabled={!serverUrl}
-              >
-                <Star className="mr-1 h-3 w-3" />
-                Save
-              </Button>
+                <Download className="h-3 w-3" />
+                Export Config
+              </button>
             </div>
           </CardContent>
         </Card>
 
-        <div className="text-center">
+        <div className="flex justify-center gap-2">
+          <label className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <Upload className="h-3 w-3" />
+            Import Presets
+            <input
+              ref={importPresetsRef}
+              type="file"
+              accept=".json"
+              onChange={handleImportPresets}
+              className="sr-only"
+            />
+          </label>
+          {presets.length > 0 && (
+            <button
+              type="button"
+              className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={handleExportPresets}
+            >
+              <Download className="h-3 w-3" />
+              Export Presets
+            </button>
+          )}
           <a
             href="https://openfga.dev"
             target="_blank"
@@ -201,7 +291,7 @@ export function ConnectionForm() {
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
-            Learn more about OpenFGA
+            Learn more
           </a>
         </div>
       </div>
